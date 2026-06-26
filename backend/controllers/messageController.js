@@ -8,8 +8,19 @@ export const getMessages = async (req, res) => {
         { sender: req.user.id, receiver: userId },
         { sender: userId, receiver: req.user.id },
       ],
-    }).sort({ createdAt: 1 })
-    res.json(messages)
+    })
+    .select('sender receiver content isRead createdAt')
+    .lean()
+    .sort({ createdAt: 1 })
+    
+    // Convert sender ObjectId to string
+    const formatted = messages.map((msg) => ({
+      ...msg,
+      sender: String(msg.sender),
+      receiver: String(msg.receiver),
+    }))
+    
+    res.json(formatted)
   } catch (err) {
     res.status(500).json({ message: 'Server error.' })
   }
