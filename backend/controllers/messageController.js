@@ -9,17 +9,17 @@ export const getMessages = async (req, res) => {
         { sender: userId, receiver: req.user.id },
       ],
     })
-    .select('sender receiver content isRead createdAt')
-    .lean()
-    .sort({ createdAt: 1 })
-    
+      .select('sender receiver content isRead createdAt')
+      .lean()
+      .sort({ createdAt: 1 })
+
     // Convert sender ObjectId to string
     const formatted = messages.map((msg) => ({
       ...msg,
       sender: String(msg.sender),
       receiver: String(msg.receiver),
     }))
-    
+
     res.json(formatted)
   } catch (err) {
     res.status(500).json({ message: 'Server error.' })
@@ -34,7 +34,11 @@ export const sendMessage = async (req, res) => {
       receiver,
       content,
     })
-    res.status(201).json(message)
+    res.status(201).json({
+      ...message.toObject(),
+      sender: String(message.sender),
+      receiver: String(message.receiver),
+    })
   } catch (err) {
     res.status(500).json({ message: 'Server error.' })
   }

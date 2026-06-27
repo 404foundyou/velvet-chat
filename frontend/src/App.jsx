@@ -7,7 +7,6 @@ export default function App() {
   const [user, setUser] = useState(null)
   const [page, setPage] = useState('login')
 
-  console.log('user:', user)
 
   if (user) return <Chat user={user} setUser={setUser} />
 
