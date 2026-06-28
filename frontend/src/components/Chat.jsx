@@ -80,15 +80,16 @@ export default function Chat({ user, setUser }) {
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return
+    const msgContent = newMessage
+    setNewMessage('') // clear input instantly
     try {
       const token = localStorage.getItem('token')
       const res = await axios.post('https://velvet-chat-2.onrender.com/api/messages', {
         receiver: selectedContact._id,
-        content: newMessage,
+        content: msgContent,
       }, { headers: { Authorization: `Bearer ${token}` } })
       setMessages((prev) => [...prev, res.data])
       socket.emit('send_message', { ...res.data, receiver: selectedContact._id })
-      setNewMessage('')
       socket.emit('stop_typing', { sender: user.id, receiver: selectedContact._id })
     } catch (err) {
       console.log(err)
