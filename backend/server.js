@@ -15,13 +15,15 @@ const httpServer = createServer(app)
 
 const io = new Server(httpServer, {
   cors: {
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'https://velvet-chat-nine.vercel.app'],
+
     methods: ['GET', 'POST'],
   },
 })
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:5173' }))
+app.use(cors({ origin: ['http://localhost:5173', 'https://velvet-chat-nine.vercel.app'],
+ }))
 app.use(express.json())
 
 // Routes
