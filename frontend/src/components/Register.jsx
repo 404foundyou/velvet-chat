@@ -30,7 +30,7 @@ export default function Register({ setUser, setPage }) {
   }
 
   return (
-    <div className="w-full max-w-md px-8 py-10 bg-white rounded-2xl shadow-sm border border-gray-100">
+    <div className="w-full max-w-md px-6 sm:px-8 py-8 sm:py-10 bg-white rounded-2xl shadow-sm border border-gray-100">
       <div className="flex items-center gap-2 mb-8">
         <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
           <span className="text-white text-sm">V</span>

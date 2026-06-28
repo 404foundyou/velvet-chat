@@ -14,6 +14,7 @@ export default function Chat({ user, setUser }) {
   const [onlineUsers, setOnlineUsers] = useState([])
   const [isTyping, setIsTyping] = useState(false)
   const [typingTimeout, setTypingTimeout] = useState(null)
+  const [showSidebar, setShowSidebar] = useState(true)
   const messagesEndRef = useRef(null)
 
   useEffect(() => {
@@ -71,6 +72,10 @@ export default function Chat({ user, setUser }) {
     if (!contacts.find((c) => c._id === contact._id)) {
       setContacts((prev) => [contact, ...prev])
     }
+    // On mobile, hide sidebar when contact is selected
+    if (window.innerWidth < 768) {
+      setShowSidebar(false)
+    }
   }
 
   const handleSendMessage = async () => {
@@ -104,14 +109,26 @@ export default function Chat({ user, setUser }) {
     setUser(null)
   }
 
+  const handleBackToContacts = () => {
+    setShowSidebar(true)
+    setSelectedContact(null)
+  }
+
   const isMine = (msg) => {
     return String(msg.sender) === String(user.id)
   }
 
   return (
-    <div className="h-screen flex bg-white">
+    <div className="h-screen flex bg-white relative overflow-hidden">
+
       {/* Sidebar */}
-      <div className="w-80 border-r border-gray-100 flex flex-col">
+      <div className={`
+        flex-shrink-0 w-80 border-r border-gray-100 flex flex-col
+        md:relative md:flex md:w-80
+        absolute inset-y-0 left-0 z-20 bg-white
+        transition-transform duration-300 ease-in-out
+        ${showSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
         {/* Header */}
         <div className="px-4 py-4 border-b border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -200,14 +217,49 @@ export default function Chat({ user, setUser }) {
             ))
           )}
         </div>
+
+        {/* Deepika Watermark */}
+        <div className="px-4 py-3 select-none pointer-events-none">
+          <span style={{
+            fontFamily: "'Pinyon Script', 'Dancing Script', 'Great Vibes', cursive",
+            fontSize: '1.5rem',
+            background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            letterSpacing: '0.05em',
+            display: 'inline-block',
+            opacity: 0.75,
+          }}>
+            Deepika
+          </span>
+        </div>
       </div>
 
+      {/* Overlay for mobile when sidebar is open */}
+      {showSidebar && selectedContact && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/20 z-10"
+          onClick={() => setShowSidebar(false)}
+        />
+      )}
+
       {/* Chat Window */}
-      <div className="flex-1 flex flex-col">
+      <div className={`
+        flex-1 flex flex-col min-w-0
+        ${!showSidebar ? 'flex' : 'hidden md:flex'}
+      `}>
         {selectedContact ? (
           <>
             {/* Chat Header */}
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+            <div className="px-4 md:px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+              {/* Back button on mobile */}
+              <button
+                onClick={handleBackToContacts}
+                className="md:hidden w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 -ml-1 mr-1"
+              >
+                ←
+              </button>
               <div className="relative">
                 <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
                   <span className="text-indigo-500 font-medium">{selectedContact.name.charAt(0)}</span>
@@ -225,10 +277,10 @@ export default function Chat({ user, setUser }) {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-3">
+            <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 flex flex-col gap-3">
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${isMine(msg) ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-xs px-4 py-2 rounded-2xl text-sm
+                  <div className={`max-w-[75%] md:max-w-xs px-4 py-2 rounded-2xl text-sm
                     ${isMine(msg)
                       ? 'bg-indigo-500 text-white rounded-br-sm'
                       : 'bg-gray-100 text-gray-800 rounded-bl-sm'
@@ -247,7 +299,7 @@ export default function Chat({ user, setUser }) {
             </div>
 
             {/* Message Input */}
-            <div className="px-6 py-4 border-t border-gray-100 flex items-center gap-3">
+            <div className="px-4 md:px-6 py-4 border-t border-gray-100 flex items-center gap-3">
               <input
                 type="text"
                 placeholder="Type a message..."
@@ -258,14 +310,14 @@ export default function Chat({ user, setUser }) {
               />
               <button
                 onClick={handleSendMessage}
-                className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center hover:bg-indigo-600 transition-colors active:scale-95"
+                className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center hover:bg-indigo-600 transition-colors active:scale-95 flex-shrink-0"
               >
                 <span className="text-white text-sm">→</span>
               </button>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center gap-3">
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 px-4">
             <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center">
               <span className="text-3xl">💬</span>
             </div>
@@ -273,9 +325,22 @@ export default function Chat({ user, setUser }) {
             <p className="text-sm text-gray-400 text-center max-w-xs">
               Select a conversation or search for someone to start chatting
             </p>
+            {/* Show contacts button on mobile when no chat selected */}
+            <button
+              onClick={() => setShowSidebar(true)}
+              className="md:hidden mt-2 px-5 py-2.5 bg-indigo-500 text-white text-sm rounded-full hover:bg-indigo-600 transition-colors"
+            >
+              View Contacts
+            </button>
           </div>
         )}
       </div>
+
+      {/* Google Fonts for cursive */}
+      <link
+        href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Dancing+Script:wght@700&display=swap"
+        rel="stylesheet"
+      />
     </div>
   )
 }
