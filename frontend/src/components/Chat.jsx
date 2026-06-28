@@ -47,6 +47,11 @@ export default function Chat({ user, setUser }) {
       axios.get(`https://velvet-chat-2.onrender.com/api/messages/${selectedContact._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       }).then((res) => setMessages(res.data))
+
+      // Mark messages as read
+      axios.put(`https://velvet-chat-2.onrender.com/api/messages/read/${selectedContact._id}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
     }
   }, [selectedContact])
 
