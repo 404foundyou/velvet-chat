@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import io from 'socket.io-client'
 
-const socket = io('http://localhost:5000')
+const socket = io('https://velvet-chat-2.onrender.com')
 
 export default function Chat({ user, setUser }) {
   const [contacts, setContacts] = useState([])
@@ -43,7 +43,7 @@ export default function Chat({ user, setUser }) {
   useEffect(() => {
     if (selectedContact) {
       const token = localStorage.getItem('token')
-      axios.get(`http://localhost:5000/api/messages/${selectedContact._id}`, {
+      axios.get(`https://velvet-chat-2.onrender.com/api/messages/${selectedContact._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       }).then((res) => setMessages(res.data))
     }
@@ -55,7 +55,7 @@ export default function Chat({ user, setUser }) {
     if (q.trim() === '') return setSearchResults([])
     try {
       const token = localStorage.getItem('token')
-      const res = await axios.get(`http://localhost:5000/api/users/search?query=${q}`, {
+      const res = await axios.get(`https://velvet-chat-2.onrender.com/api/users/search?query=${q}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setSearchResults(res.data)
@@ -77,7 +77,7 @@ export default function Chat({ user, setUser }) {
     if (!newMessage.trim()) return
     try {
       const token = localStorage.getItem('token')
-      const res = await axios.post('http://localhost:5000/api/messages', {
+      const res = await axios.post('https://velvet-chat-2.onrender.com/api/messages', {
         receiver: selectedContact._id,
         content: newMessage,
       }, { headers: { Authorization: `Bearer ${token}` } })
